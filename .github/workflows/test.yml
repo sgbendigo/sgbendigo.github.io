@@ -9,4 +9,4 @@ jobs:
         run: |
           curl -s -i \
             -H "x-api-key: ${{ secrets.VE_KEY }}" \
-            "https://acapi.vecddevau1.village.energy/xv1/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS/Individual/${{ secrets.VE_CUSTOMER }}"
+            "https://acapi.syprodau1.village.energy/xv1/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS/Individual/${{ secrets.VE_CUSTOMER }}"
