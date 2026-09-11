@@ -5,24 +5,18 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Try everything
+      - name: Probe
         run: |
           K="${{ secrets.VE_KEY }}"
-          C="${{ secrets.VE_CUSTOMER }}"
           P="https://acapi.vecddevau1.village.energy/xv1"
 
           try () {
             echo ""
-            echo "=============================================="
-            echo "TRY: $1"
-            echo "=============================================="
+            echo "===== $1"
             curl -s -w "\nSTATUS: %{http_code}\n" -H "apiKey: $K" "$P$1"
           }
 
-          try "/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS/Individual/$C"
-          try "/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS/Individual"
-          try "/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS"
-          try "/get/customer/energy/electricity/servicepoints/Voltello"
-          try "/get/customer/energy/electricity/servicepoints/$C"
-          try "/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS/Individual/$C/"
-          try "/get/customer/contracts/tiles/Voltello/CUSTOMERS/Individual/$C"
+          try "/get/energy/electricity/servicepoints/Voltello"
+          try "/get/energy/electricity/der/Voltello"
+          try "/get/energy/electricity/usage/telemetry/Voltello"
+          try "/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS/Individual/00000000-0000-0000-0000-000000000000"
