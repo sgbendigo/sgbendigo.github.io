@@ -8,5 +8,5 @@ jobs:
       - name: Call the API
         run: |
           curl -s -i \
-            -H "x-api-key: ${{ secrets.VE_KEY }}" \
+            -H "apiKey: ${{ secrets.VE_KEY }}" \
             "https://acapi.syprodau1.village.energy/xv1/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS/Individual/${{ secrets.VE_CUSTOMER }}"
