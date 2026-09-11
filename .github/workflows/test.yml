@@ -1,0 +1,12 @@
+name: Test Voltello
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the API
+        run: |
+          curl -s -i \
+            -H "x-api-key: ${{ secrets.VE_KEY }}" \
+            "https://acapi.vecddevau1.village.energy/xv1/get/customer/energy/electricity/servicepoints/Voltello/CUSTOMERS/Individual/${{ secrets.VE_CUSTOMER }}"
