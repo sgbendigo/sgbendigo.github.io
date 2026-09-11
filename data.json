@@ -1,0 +1,132 @@
+{
+  "updated": "2026-09-11T09:15:00+10:00",
+  "site": {
+    "name": "Lancefield",
+    "status": "Normal",
+    "weather": "Sunny 13°C",
+    "address": "271 Parks Rd, Lancefield VIC 3435, Australia",
+    "capacity": "80.00 kW",
+    "commissioned": "2025-08-01",
+    "contact": "––",
+    "contactInfo": "––",
+    "photo": null
+  },
+  "metrics": {
+    "today": 358.1,
+    "revenue": null,
+    "month": 3.69,
+    "year": 32.91,
+    "lifetime": 63.36
+  },
+  "flow": {
+    "pv": 52.42,
+    "grid": 2.75,
+    "gridDir": "import",
+    "load": 55.17,
+    "battery": null,
+    "batteryPower": null,
+    "batteryDir": null
+  },
+  "devices": [
+    {
+      "name": "Meter-1",
+      "type": "meter",
+      "status": "Online",
+      "ok": true,
+      "fields": [
+        [
+          "Active Power",
+          "-2.75 kW"
+        ],
+        [
+          "Total Active Energy G…",
+          "0.00 kWh"
+        ],
+        [
+          "Total active Energy C…",
+          "49.75 kWh"
+        ]
+      ]
+    },
+    {
+      "name": "Dongle-100",
+      "type": "dongle",
+      "status": "Online",
+      "ok": true,
+      "fields": [
+        [
+          "SN",
+          "NS24C1117346"
+        ],
+        [
+          "Model Name",
+          "IS-DONGLE-WLAN"
+        ]
+      ]
+    },
+    {
+      "name": "Dongle-100",
+      "type": "dongle",
+      "status": "Online",
+      "ok": true,
+      "fields": [
+        [
+          "SN",
+          "NS24C1117210"
+        ],
+        [
+          "Model Name",
+          "IS-DONGLE-WLAN"
+        ]
+      ]
+    },
+    {
+      "name": "Inverter-16",
+      "type": "inverter",
+      "status": "Operating",
+      "ok": true,
+      "fields": [
+        [
+          "SN",
+          "6T2439019312"
+        ],
+        [
+          "Model Name",
+          "IS-INV-40000-3PH"
+        ],
+        [
+          "Active Power",
+          "22.692 kW"
+        ],
+        [
+          "Production Today",
+          "195.66 kWh"
+        ]
+      ]
+    },
+    {
+      "name": "Inverter-1",
+      "type": "inverter",
+      "status": "Operating",
+      "ok": true,
+      "fields": [
+        [
+          "SN",
+          "ES2420030841"
+        ],
+        [
+          "Model Name",
+          "IS-INV-40000-3PH"
+        ],
+        [
+          "Active Power",
+          "28.604 kW"
+        ],
+        [
+          "Production Today",
+          "162.44 kWh"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solar</title>
+<style>
+/* ===================================================================
+   Built for old TV browsers on purpose.
+   No CSS grid, no custom properties, no flex `gap`, no ES6.
+   Everything here works back to roughly Chromium 29 (2013).
+   =================================================================== */
+
+*      { margin:0; padding:0; -webkit-box-sizing:border-box; box-sizing:border-box }
+html,body { height:100% }
+
+body{
+  background:#101118;
+  color:#fff;
+  font:400 14px/1.4 "Helvetica Neue",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+
+/* ---------------- header band ---------------- */
+.head{ background:#212029; padding:37px 26px 32px; overflow:hidden }
+.avatar{
+  float:left; width:92px; height:92px; border-radius:50%;
+  margin:-13px 24px 0 6px; background:#2c3238 center center no-repeat;
+  background-size:cover; border:1px solid rgba(255,255,255,.22);
+  text-align:center; line-height:92px; color:#6f7780;
+}
+.hbody{ overflow:hidden }
+
+.sname{ font-size:21px; font-weight:400; line-height:1.1; margin-bottom:20px }
+.sstate{ font-size:13px; color:#0dcd6e; margin-left:11px }
+
+.hline{ font-size:14px; margin-bottom:8px; line-height:15px }
+.hline img, .hline svg{ vertical-align:-2px; margin-right:7px }
+.haddr{ color:#266dfa }
+
+.meta{ margin-top:31px; font-size:14px; line-height:15px }
+.meta span{ display:inline-block; margin-right:38px; white-space:nowrap }
+.meta i{ color:#8a8b99; font-style:normal; margin-right:9px }
+
+/* ---------------- metric strip ---------------- */
+.strip{
+  background:#212029; border-radius:4px;
+  margin:12px 16px 0 17px; padding:26px 20px 26px;
+  display:-webkit-box; display:-webkit-flex; display:flex;
+}
+.mcell{ -webkit-box-flex:1; -webkit-flex:1 1 0; flex:1 1 0; padding-right:20px }
+.mlabel{ font-size:14px; color:#8a8b99; line-height:15px; margin-bottom:13px }
+.mval  { font-size:27px; line-height:19px; white-space:nowrap }
+.mval b{ font-weight:400 }
+.munit { font-size:17px; margin-left:8px }
+
+/* ---------------- panels ---------------- */
+.panels{
+  margin:12px 16px 13px 17px;
+  display:-webkit-box; display:-webkit-flex; display:flex;
+  height:497px;
+}
+.panel{ background:#212029; border-radius:4px; padding:17px 21px 20px; height:497px }
+.pleft { width:31.94%; margin-right:.925%; -webkit-flex:none; flex:none }
+.pright{ -webkit-box-flex:1; -webkit-flex:1 1 auto; flex:1 1 auto; padding:17px 18px 18px; overflow:hidden }
+.ptitle{ font-size:16px; line-height:15px; margin-bottom:8px }
+
+/* ---------------- flow diagram ---------------- */
+.flow{ text-align:center; height:440px }
+.flow svg{ width:100%; height:440px; display:block }
+
+.ring   { fill:none; stroke:#0dcd6e; stroke-width:1.7 }
+.ringoff{ fill:none; stroke:#4e4e5b; stroke-width:1.7 }
+.wire   { stroke:#0dcd6e; stroke-width:1.4; fill:none }
+.wireoff{ stroke:#4e4e5b; stroke-width:1.3; fill:none; stroke-dasharray:4 4 }
+.ico    { fill:none; stroke:#fff;     stroke-width:1.35; stroke-linecap:round; stroke-linejoin:round }
+.icooff { fill:none; stroke:#8a8b99;  stroke-width:1.35; stroke-linecap:round; stroke-linejoin:round }
+.chev   { fill:none; stroke:#0dcd6e; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round }
+
+.nval{ fill:#fff;     font-size:13px; font-weight:700; text-anchor:middle }
+.nun { fill:#8a8b99;  font-size:9px;  text-anchor:middle }
+.ncap{ fill:#8a8b99;  font-size:12px; text-anchor:middle }
+
+/* ---------------- device cards ---------------- */
+.devs{ height:402px; overflow:hidden; margin-top:12px }
+.dev{
+  float:left; background:#292931; border-radius:4px;
+  width:32.57%; margin:0 1.14% 14px 0; padding:14px 13px 20px 21px;
+  height:133px;
+}
+.dev.tall{ height:157px }
+.dev.last{ margin-right:0 }
+
+.dhead{ height:19px; margin-bottom:22px; white-space:nowrap }
+.dhead .di{ float:left; width:20px; height:19px; margin-right:11px }
+.dname{ font-size:16px; line-height:19px }
+.pill{
+  float:right; font-size:13px; line-height:15px;
+  background:#25383e; color:#0dcd6e; border:1px solid #1f5a52;
+  border-radius:3px; padding:2px 8px; margin-top:-1px;
+}
+.pill.warn{ background:#3e3325; color:#f0883e; border-color:#5a4a1f }
+
+.drow{ font-size:14px; line-height:24px; height:24px; white-space:nowrap; overflow:hidden }
+.dk{ float:left; color:#8a8b99; max-width:58%; overflow:hidden; text-overflow:ellipsis }
+.dv{ float:right }
+
+/* ---------------- freshness ---------------- */
+.stamp{ position:fixed; right:22px; bottom:6px; font-size:12px; color:#5a5a66 }
+.stamp.stale{ color:#f0883e }
+.stamp.err  { color:#f85149 }
+
+/* ---------------- flow animations ----------------
+   One block per wire. No variables — old engines can't read them. */
+.chev{ opacity:0 }
+@keyframes fpv   {0%{transform:translate(0,0);opacity:0}18%{opacity:.95}82%{opacity:.95}100%{transform:translate(0,60px);opacity:0}}
+@keyframes fload {0%{transform:translate(0,0);opacity:0}18%{opacity:.95}82%{opacity:.95}100%{transform:translate(0,61px);opacity:0}}
+@keyframes fexp  {0%{transform:translate(0,0);opacity:0}18%{opacity:.95}82%{opacity:.95}100%{transform:translate(69px,0);opacity:0}}
+@keyframes fimpv {0%{transform:translate(0,0);opacity:0}18%{opacity:.95}82%{opacity:.95}100%{transform:translate(0,83px);opacity:0}}
+@keyframes fimph {0%{transform:translate(0,0);opacity:0}18%{opacity:.95}82%{opacity:.95}100%{transform:translate(-84px,0);opacity:0}}
+@keyframes fbin  {0%{transform:translate(0,0);opacity:0}18%{opacity:.95}82%{opacity:.95}100%{transform:translate(-69px,0);opacity:0}}
+@keyframes fbout {0%{transform:translate(0,0);opacity:0}18%{opacity:.95}82%{opacity:.95}100%{transform:translate(69px,0);opacity:0}}
+
+#s-pv   .chev{ -webkit-animation:fpv   2s linear infinite; animation:fpv   2s linear infinite }
+#s-load .chev{ -webkit-animation:fload 2s linear infinite; animation:fload 2s linear infinite }
+#s-exp  .chev{ -webkit-animation:fexp  2s linear infinite; animation:fexp  2s linear infinite }
+#s-impv .chev{ -webkit-animation:fimpv 2s linear infinite; animation:fimpv 2s linear infinite }
+#s-imph .chev{ -webkit-animation:fimph 2s linear infinite; animation:fimph 2s linear infinite }
+#s-bin  .chev{ -webkit-animation:fbin  2s linear infinite; animation:fbin  2s linear infinite }
+#s-bout .chev{ -webkit-animation:fbout 2s linear infinite; animation:fbout 2s linear infinite }
+.chev.b{ -webkit-animation-delay:-1s; animation-delay:-1s }
+
+/* If animation isn't supported at all, show the chevrons sitting still
+   rather than invisible. */
+@supports not (animation-name:fpv){ .chev{ opacity:.95 } }
+</style>
+</head>
+<body>
+
+<!-- device card icons -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-meter" viewBox="0 0 20 20">
+    <path d="M6.5 5V2.8M13.5 5V2.8" stroke="#fff" stroke-width="1.35" fill="none" stroke-linecap="round"/>
+    <rect x="2.5" y="5" width="15" height="11.6" rx="2" stroke="#fff" stroke-width="1.35" fill="none"/>
+    <rect x="5.6" y="8.2" width="8.8" height="4.2" rx="1" stroke="#fff" stroke-width="1.35" fill="none"/>
+  </symbol>
+  <symbol id="i-dongle" viewBox="0 0 20 20">
+    <path d="M8 5.4V2.4M12 5.4V2.4" stroke="#fff" stroke-width="1.35" fill="none" stroke-linecap="round"/>
+    <rect x="6.4" y="5.4" width="7.2" height="12.2" rx="3.4" stroke="#fff" stroke-width="1.35" fill="none"/>
+    <circle cx="10" cy="10.2" r="1.7" stroke="#fff" stroke-width="1.35" fill="none"/>
+  </symbol>
+  <symbol id="i-inverter" viewBox="0 0 20 20">
+    <rect x="3" y="3" width="14" height="14" rx="2" stroke="#fff" stroke-width="1.35" fill="none"/>
+    <path d="M6.4 13.6L13.6 6.4M6.4 9.6V6.4H9.6M13.6 10.4V13.6H10.4"
+          stroke="#fff" stroke-width="1.35" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-generic" viewBox="0 0 20 20">
+    <rect x="3" y="4" width="14" height="12" rx="2" stroke="#fff" stroke-width="1.35" fill="none"/>
+    <path d="M7 8.5h6M7 12h3.5" stroke="#fff" stroke-width="1.35" fill="none" stroke-linecap="round"/>
+  </symbol>
+</defs></svg>
+
+
+<!-- ═══════════ header ═══════════ -->
+<div class="head">
+  <div class="avatar" id="avatar">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#6f7780"
+         stroke-width="1.3" stroke-linejoin="round" style="vertical-align:-8px">
+      <path d="M3 10.5 12 3l9 7.5V21H3z"/>
+    </svg>
+  </div>
+
+  <div class="hbody">
+    <div class="sname"><span id="s-name">Lancefield</span><span class="sstate" id="s-state">Normal</span></div>
+
+    <div class="hline">
+      <svg width="13" height="13" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#266dfa"/></svg><span id="s-weather">Sunny 13&deg;C</span>
+    </div>
+
+    <div class="hline haddr">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#266dfa" stroke-width="1.4">
+        <path d="M8 14.5S13 10.2 13 6.5a5 5 0 0 0-10 0C3 10.2 8 14.5 8 14.5z"/><circle cx="8" cy="6.4" r="1.8"/>
+      </svg><span id="s-addr">271 Parks Rd, Lancefield VIC 3435, Australia</span>
+    </div>
+
+    <div class="meta" id="s-meta"><span><i>Capacity</i>80.00 kW</span><span><i>Commissioning Date</i>2025-08-01</span><span><i>Contact</i>&ndash;&ndash;</span><span><i>Contact Information</i>&ndash;&ndash;</span></div>
+  </div>
+</div>
+
+
+<!-- ═══════════ metric strip ═══════════ -->
+<div class="strip">
+  <div class="mcell"><div class="mlabel">PV Production Today</div><div class="mval"><b id="m-today">358.10</b><span class="munit">kWh</span></div></div>
+  <div class="mcell"><div class="mlabel">Revenue Today</div><div class="mval"><b id="m-revenue">&ndash;&ndash;</b><span class="munit">$</span></div></div>
+  <div class="mcell"><div class="mlabel">PV Production this month</div><div class="mval"><b id="m-month">3.69</b><span class="munit">MWh</span></div></div>
+  <div class="mcell"><div class="mlabel">PV Production this year</div><div class="mval"><b id="m-year">32.91</b><span class="munit">MWh</span></div></div>
+  <div class="mcell"><div class="mlabel">Lifetime PV Production</div><div class="mval"><b id="m-lifetime">63.36</b><span class="munit">MWh</span></div></div>
+</div>
+
+
+<!-- ═══════════ panels ═══════════ -->
+<div class="panels">
+
+  <div class="panel pleft">
+    <div class="ptitle">Energy Flow Diagram</div>
+    <div class="flow">
+      <svg viewBox="39 -6 440 440" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <defs><filter id="glow" x="-70%" y="-70%" width="240%" height="240%">
+          <feGaussianBlur stdDeviation="3.2" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter></defs>
+
+        <!-- wires -->
+        <line class="wire"    x1="258" y1="138" x2="258" y2="200"/>
+        <line class="wireoff" id="w-bat" x1="231" y1="225" x2="162" y2="225"/>
+        <line class="wire"    x1="285" y1="225" x2="354" y2="225"/>
+        <line class="wire"    x1="258" y1="252" x2="258" y2="315"/>
+        <path class="wire"    d="M386 257 V340 Q386 351 375 351 H296"/>
+
+        <!-- moving chevrons -->
+        <g id="s-pv"   transform="translate(258,138)"><path class="chev"   d="M-3.5 -2.5 L0 2.5 L3.5 -2.5"/><path class="chev b" d="M-3.5 -2.5 L0 2.5 L3.5 -2.5"/></g>
+        <g id="s-load" transform="translate(258,252)"><path class="chev"   d="M-3.5 -2.5 L0 2.5 L3.5 -2.5"/><path class="chev b" d="M-3.5 -2.5 L0 2.5 L3.5 -2.5"/></g>
+        <g id="s-exp" style="display:none" transform="translate(285,225)"><path class="chev"   d="M-2.5 -3.5 L2.5 0 L-2.5 3.5"/><path class="chev b" d="M-2.5 -3.5 L2.5 0 L-2.5 3.5"/></g>
+        <g id="s-impv" transform="translate(386,257)"><path class="chev"   d="M-3.5 -2.5 L0 2.5 L3.5 -2.5"/><path class="chev b" d="M-3.5 -2.5 L0 2.5 L3.5 -2.5"/></g>
+        <g id="s-imph" transform="translate(380,351)"><path class="chev"   d="M2.5 -3.5 L-2.5 0 L2.5 3.5"/><path class="chev b" d="M2.5 -3.5 L-2.5 0 L2.5 3.5"/></g>
+        <g id="s-bin" style="display:none" transform="translate(231,225)"><path class="chev"   d="M2.5 -3.5 L-2.5 0 L2.5 3.5"/><path class="chev b" d="M2.5 -3.5 L-2.5 0 L2.5 3.5"/></g>
+        <g id="s-bout" style="display:none" transform="translate(162,225)"><path class="chev"   d="M-2.5 -3.5 L2.5 0 L-2.5 3.5"/><path class="chev b" d="M-2.5 -3.5 L2.5 0 L-2.5 3.5"/></g>
+
+        <!-- PV -->
+        <text class="ncap" x="258" y="54">PV System</text>
+        <circle class="ring" cx="258" cy="102" r="36" filter="url(#glow)"/>
+        <g class="ico" transform="translate(248,79)">
+          <rect x="0" y="0" width="20" height="12.6" rx="1.4"/>
+          <path d="M0 4.2H20M0 8.4H20M6.7 0V12.6M13.3 0V12.6"/>
+        </g>
+        <text class="nval" x="258" y="110" id="f-pv">52.42</text>
+        <text class="nun"  x="258" y="121">kW</text>
+
+        <!-- storage -->
+        <circle class="ringoff" id="r-bat" cx="130" cy="225" r="32"/>
+        <g class="icooff" id="i-bat" transform="translate(116,218)">
+          <rect x="0" y="0" width="24" height="14.4" rx="3"/>
+          <path d="M24 5.2h2.5v4H24"/>
+        </g>
+        <text class="nun"  x="127" y="230" id="f-bat">-%</text>
+        <text class="ncap" x="130" y="281">Storage System</text>
+
+        <!-- inverter hub -->
+        <circle class="ring" cx="258" cy="225" r="27" filter="url(#glow)"/>
+        <g class="ico" transform="translate(251,216)">
+          <rect x="0" y="0" width="14" height="18.4" rx="2.4"/>
+          <path d="M3.6 5.2h6.8M3.6 9.4h6.8M3.6 13.6h4.2"/>
+        </g>
+        <path d="M290 221 L294 225 L290 229" fill="none" stroke="#8a8b99"
+              stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- grid -->
+        <circle class="ring" cx="386" cy="225" r="32" filter="url(#glow)"/>
+        <g class="ico" transform="translate(378,205)">
+          <path d="M8 0L2.4 16.6M8 0L13.6 16.6"/>
+          <path d="M4 3.6h8M3.1 7.8h9.8M4.4 12h7.2"/>
+          <path d="M0.4 16.6h3.2M12.4 16.6h3.2"/>
+        </g>
+        <text class="nval" x="386" y="233" id="f-grid">2.75</text>
+        <text class="nun"  x="386" y="243">kW</text>
+        <text class="ncap" x="386" y="281">Grid</text>
+
+        <!-- load -->
+        <circle class="ring" cx="258" cy="349" r="36" filter="url(#glow)"/>
+        <g class="ico" transform="translate(249,327)">
+          <path d="M0.8 7.8L9 1.2L17.2 7.8V16H0.8Z"/>
+        </g>
+        <text class="nval" x="258" y="357" id="f-load">55.17</text>
+        <text class="nun"  x="258" y="368">kW</text>
+        <text class="ncap" x="258" y="406">Load</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="panel pright">
+    <div class="ptitle">Devices Overview</div>
+    <div class="devs" id="devs"><article class="dev"><div class="dhead"><svg class="di"><use xlink:href="#i-meter" href="#i-meter"/></svg><span class="pill">Online</span><span class="dname">Meter-1</span></div><div class="drow"><span class="dk">Active Power</span><span class="dv">-2.75 kW</span></div><div class="drow"><span class="dk">Total Active Energy G&hellip;</span><span class="dv">0.00 kWh</span></div><div class="drow"><span class="dk">Total active Energy C&hellip;</span><span class="dv">49.75 kWh</span></div></article><article class="dev"><div class="dhead"><svg class="di"><use xlink:href="#i-dongle" href="#i-dongle"/></svg><span class="pill">Online</span><span class="dname">Dongle-100</span></div><div class="drow"><span class="dk">SN</span><span class="dv">NS24C1117346</span></div><div class="drow"><span class="dk">Model Name</span><span class="dv">IS-DONGLE-WLAN</span></div></article><article class="dev last"><div class="dhead"><svg class="di"><use xlink:href="#i-dongle" href="#i-dongle"/></svg><span class="pill">Online</span><span class="dname">Dongle-100</span></div><div class="drow"><span class="dk">SN</span><span class="dv">NS24C1117210</span></div><div class="drow"><span class="dk">Model Name</span><span class="dv">IS-DONGLE-WLAN</span></div></article><article class="dev tall"><div class="dhead"><svg class="di"><use xlink:href="#i-inverter" href="#i-inverter"/></svg><span class="pill">Operating</span><span class="dname">Inverter-16</span></div><div class="drow"><span class="dk">SN</span><span class="dv">6T2439019312</span></div><div class="drow"><span class="dk">Model Name</span><span class="dv">IS-INV-40000-3PH</span></div><div class="drow"><span class="dk">Active Power</span><span class="dv">22.692 kW</span></div><div class="drow"><span class="dk">Production Today</span><span class="dv">195.66 kWh</span></div></article><article class="dev tall"><div class="dhead"><svg class="di"><use xlink:href="#i-inverter" href="#i-inverter"/></svg><span class="pill">Operating</span><span class="dname">Inverter-1</span></div><div class="drow"><span class="dk">SN</span><span class="dv">ES2420030841</span></div><div class="drow"><span class="dk">Model Name</span><span class="dv">IS-INV-40000-3PH</span></div><div class="drow"><span class="dk">Active Power</span><span class="dv">28.604 kW</span></div><div class="drow"><span class="dk">Production Today</span><span class="dv">162.44 kWh</span></div></article></div>
+  </div>
+
+</div>
+
+<div class="stamp" id="stamp">Loading&hellip;</div>
+
+<script>
+/* ===================================================================
+   ES5 only. No fetch, no arrow functions, no template literals,
+   no const/let. Runs on anything from about 2013 onward.
+
+   The page above is already filled in with real markup, so if this
+   script fails outright the screen still shows a correct-looking
+   dashboard rather than going blank. The corner will stay on
+   "Loading..." which is your signal that it didn't run.
+   =================================================================== */
+
+var DATA_URL    = './data.json';   /* change to your Worker address */
+var POLL_MS     = 30000;
+var STALE_AFTER = 600000;
+
+function $(id){ return document.getElementById(id); }
+
+function esc(s){
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function n2(v){
+  if (v === null || v === undefined || isNaN(v)) return '\u2013\u2013';
+  return Number(v).toFixed(2);
+}
+function setText(id, txt){ var e = $(id); if (e) e.firstChild
+  ? (e.firstChild.nodeValue = txt) : (e.appendChild(document.createTextNode(txt))); }
+
+/* ---- header ---- */
+function paintHead(s){
+  if (!s) return;
+  if (s.name)    setText('s-name', s.name);
+  if (s.status)  setText('s-state', s.status);
+  if (s.weather) setText('s-weather', s.weather);
+  if (s.address) setText('s-addr', s.address);
+  if (s.photo)   $('avatar').style.backgroundImage = 'url("' + s.photo + '")';
+
+  var rows = [['Capacity', s.capacity], ['Commissioning Date', s.commissioned],
+              ['Contact', s.contact],  ['Contact Information', s.contactInfo]];
+  var html = '', i;
+  for (i = 0; i < rows.length; i++){
+    var v = rows[i][1];
+    html += '<span><i>' + rows[i][0] + '</i>' +
+            esc(v === null || v === undefined ? '\u2013\u2013' : v) + '</span>';
+  }
+  $('s-meta').innerHTML = html;
+}
+
+/* ---- five headline figures ---- */
+function paintStrip(m){
+  if (!m) return;
+  setText('m-today',    n2(m.today));
+  setText('m-revenue',  n2(m.revenue));
+  setText('m-month',    n2(m.month));
+  setText('m-year',     n2(m.year));
+  setText('m-lifetime', n2(m.lifetime));
+}
+
+/* ---- flow diagram ---- */
+function showSeg(id, on){
+  var e = $(id);
+  if (e) e.style.display = on ? '' : 'none';
+}
+
+function paintFlow(f){
+  if (!f) return;
+  setText('f-pv',   n2(f.pv));
+  setText('f-grid', n2(f.grid));
+  setText('f-load', n2(f.load));
+  setText('f-bat',  f.battery === null || f.battery === undefined
+                    ? '-%' : Math.round(f.battery) + '%');
+
+  function live(v){ return v !== null && v !== undefined && Math.abs(v) > 0.05; }
+
+  /* Which way is the grid flowing? Use the API's own word if it gives
+     one. Otherwise: if the house is drawing more than the panels make,
+     the difference is coming in from the grid. */
+  var dir = f.gridDir;
+  if (!dir && f.pv !== null && f.pv !== undefined &&
+              f.load !== null && f.load !== undefined){
+    dir = (f.load > f.pv) ? 'import' : 'export';
+  }
+  var importing = (dir === 'import');
+
+  showSeg('s-pv',   live(f.pv));
+  showSeg('s-load', live(f.load));
+  showSeg('s-exp',  live(f.grid) && !importing);
+  showSeg('s-impv', live(f.grid) &&  importing);
+  showSeg('s-imph', live(f.grid) &&  importing);
+
+  var hasBat   = f.battery !== null && f.battery !== undefined;
+  var draining = live(f.batteryPower) && f.batteryDir === 'discharge';
+  var charging = live(f.batteryPower) && !draining;
+
+  showSeg('s-bin',  charging);
+  showSeg('s-bout', draining);
+
+  $('r-bat').setAttribute('class', hasBat ? 'ring'  : 'ringoff');
+  $('i-bat').setAttribute('class', hasBat ? 'ico'   : 'icooff');
+  $('w-bat').setAttribute('class', hasBat ? 'wire'  : 'wireoff');
+}
+
+/* ---- device cards ---- */
+function paintDevs(list){
+  if (!list || !list.length) return;
+  var ICON = { meter:'i-meter', dongle:'i-dongle', inverter:'i-inverter' };
+  var html = '', i, j;
+
+  for (i = 0; i < list.length; i++){
+    var d = list[i], fields = d.fields || [];
+    var sym = ICON[d.type] || 'i-generic';
+    var cls = 'dev' + (fields.length > 3 ? ' tall' : '') + ((i % 3) === 2 ? ' last' : '');
+
+    html += '<article class="' + cls + '"><div class="dhead">' +
+            '<svg class="di"><use xlink:href="#' + sym + '" href="#' + sym + '"/></svg>' +
+            '<span class="pill' + (d.ok === false ? ' warn' : '') + '">' +
+            esc(d.status || '\u2014') + '</span>' +
+            '<span class="dname">' + esc(d.name) + '</span></div>';
+
+    for (j = 0; j < fields.length; j++){
+      html += '<div class="drow"><span class="dk">' + esc(fields[j][0]) +
+              '</span><span class="dv">' + esc(fields[j][1]) + '</span></div>';
+    }
+    html += '</article>';
+  }
+  $('devs').innerHTML = html;
+}
+
+/* ---- freshness ---- */
+function paintStamp(iso, failed){
+  var el = $('stamp');
+  if (failed){ el.className = 'stamp err'; el.innerHTML = 'No connection &ndash; retrying'; return; }
+  var age  = (new Date()).getTime() - (new Date(iso)).getTime();
+  var mins = Math.round(age / 60000);
+  el.className = 'stamp' + (age > STALE_AFTER ? ' stale' : '');
+  el.innerHTML = mins < 1 ? 'Updated just now' : 'Updated ' + mins + ' min ago';
+}
+
+/* ---- fetch, the old-fashioned way ---- */
+function refresh(){
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', DATA_URL + (DATA_URL.indexOf('?') < 0 ? '?' : '&') +
+                  't=' + (new Date()).getTime(), true);
+  xhr.onreadystatechange = function(){
+    if (xhr.readyState !== 4) return;
+    if (xhr.status >= 200 && xhr.status < 300){
+      var d;
+      try { d = JSON.parse(xhr.responseText); }
+      catch (e){ paintStamp(null, true); return; }
+      paintHead(d.site);
+      paintStrip(d.metrics);
+      paintFlow(d.flow);
+      paintDevs(d.devices);
+      paintStamp(d.updated);
+    } else {
+      paintStamp(null, true);        /* keep the last good numbers on screen */
+    }
+  };
+  try { xhr.send(); } catch (e){ paintStamp(null, true); }
+}
+
+refresh();
+setInterval(refresh, POLL_MS);
+</script>
+</body>
+</html>
