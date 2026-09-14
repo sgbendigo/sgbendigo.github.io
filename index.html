@@ -230,37 +230,47 @@ body{
         <!-- PV -->
         <text class="ncap" x="258" y="54">PV System</text>
         <circle class="ring" cx="258" cy="102" r="36" filter="url(#glow)"/>
-        <g class="ico" transform="translate(248,79)">
-          <rect x="0" y="0" width="20" height="12.6" rx="1.4"/>
-          <path d="M0 4.2H20M0 8.4H20M6.7 0V12.6M13.3 0V12.6"/>
+        <g class="ico" transform="translate(243,72) scale(1.5)">
+          <path d="M6.6 3.2 H13.4 L15.6 10.2 H4.4 Z"/>
+          <path d="M5.5 6.7 H14.5"/>
+          <path d="M10 3.2 V10.2"/>
+          <path d="M10 10.2 V14.4"/>
+          <path d="M6.2 14.4 H13.8"/>
         </g>
         <text class="nval" x="258" y="110" id="f-pv">52.42</text>
         <text class="nun"  x="258" y="121">kW</text>
 
         <!-- storage -->
         <circle class="ringoff" id="r-bat" cx="130" cy="225" r="32"/>
-        <g class="icooff" id="i-bat" transform="translate(116,218)">
-          <rect x="0" y="0" width="24" height="14.4" rx="3"/>
-          <path d="M24 5.2h2.5v4H24"/>
+        <g class="icooff" id="i-bat" transform="translate(117,212) scale(1.3)">
+          <rect x="1.4" y="6" width="14.6" height="8.2" rx="1.7"/>
+          <path d="M16 8.7 H17.9 V11.5 H16"/>
         </g>
-        <text class="nun"  x="127" y="230" id="f-bat">-%</text>
+        <text class="nun"  x="128" y="228" id="f-bat">-%</text>
         <text class="ncap" x="130" y="281">Storage System</text>
 
         <!-- inverter hub -->
         <circle class="ring" cx="258" cy="225" r="27" filter="url(#glow)"/>
-        <g class="ico" transform="translate(251,216)">
-          <rect x="0" y="0" width="14" height="18.4" rx="2.4"/>
-          <path d="M3.6 5.2h6.8M3.6 9.4h6.8M3.6 13.6h4.2"/>
+        <g class="ico" transform="translate(246.5,213.5) scale(1.15)">
+          <rect x="2.4" y="2.4" width="15.2" height="15.2" rx="3.4"/>
+          <rect x="7"   y="4.9" width="6"    height="10.2" rx="1.5"/>
+          <path d="M8.2 6.9 H11.8"/>
+          <path d="M10 9 L11.5 11 H8.5 Z"/>
+          <path d="M8.2 13.1 H11.8"/>
         </g>
         <path d="M290 221 L294 225 L290 229" fill="none" stroke="#8a8b99"
               stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
 
         <!-- grid -->
         <circle class="ring" cx="386" cy="225" r="32" filter="url(#glow)"/>
-        <g class="ico" transform="translate(378,205)">
-          <path d="M8 0L2.4 16.6M8 0L13.6 16.6"/>
-          <path d="M4 3.6h8M3.1 7.8h9.8M4.4 12h7.2"/>
-          <path d="M0.4 16.6h3.2M12.4 16.6h3.2"/>
+        <g class="ico" transform="translate(374,196) scale(1.2)">
+          <path d="M7.9 2.8 H12.1"/>
+          <path d="M8 2.8 L4 17"/>
+          <path d="M12 2.8 L16 17"/>
+          <path d="M5.8 6.6 H14.2"/>
+          <path d="M4.6 9.9 H15.4"/>
+          <path d="M6.1 11.3 L13.9 16.6"/>
+          <path d="M13.9 11.3 L6.1 16.6"/>
         </g>
         <text class="nval" x="386" y="233" id="f-grid">2.75</text>
         <text class="nun"  x="386" y="243">kW</text>
@@ -268,8 +278,10 @@ body{
 
         <!-- load -->
         <circle class="ring" cx="258" cy="349" r="36" filter="url(#glow)"/>
-        <g class="ico" transform="translate(249,327)">
-          <path d="M0.8 7.8L9 1.2L17.2 7.8V16H0.8Z"/>
+        <g class="ico" transform="translate(243,319) scale(1.5)">
+          <path d="M3.4 8.8 L10 3 L16.6 8.8 V16.8 H3.4 Z"/>
+          <path d="M8.7 16.8 V12.9 a1.3 1.3 0 0 1 2.6 0 V16.8"
+                fill="#fff" stroke="none"/>
         </g>
         <text class="nval" x="258" y="357" id="f-load">55.17</text>
         <text class="nun"  x="258" y="368">kW</text>
