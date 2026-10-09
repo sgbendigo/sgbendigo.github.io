@@ -13,12 +13,14 @@ jobs:
           P="https://acapi.vecddevau1.village.energy/xv1"
           B="$P/get/customer/energy/electricity/servicepoints/$C"
 
+          echo "context ${#C} chars, customerId ${#U} chars"
+
           try () {
             echo ""
             echo "===== $2"
             curl -s -w "\nSTATUS: %{http_code}\n" -H "apiKey: $K" "$1"
           }
 
-          try "$B"                  "no filter"
-          try "$B?customerId=$U"    "filtered by customerId"
-          try "$P/get/customer/energy/electricity/servicepoints/$C/" "trailing slash"
+          try "$B"               "no filter"
+          try "$B?customerId=$U" "filtered by customerId"
+          try "$B/"              "trailing slash"
