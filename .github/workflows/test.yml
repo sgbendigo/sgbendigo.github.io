@@ -14,15 +14,21 @@ jobs:
           B="$P/get/customer/energy/electricity/servicepoints/$S"
           T=$(date -u +%Y-%m-%d)
 
-          echo "===== realtime, no params"
+          echo "===== A. realtime, no params"
           curl -s -w "\nSTATUS: %{http_code}\n" -H "apiKey: $K" "$B/usage/realtime/$C"
 
           echo ""
-          echo "===== 5-min, per endpoint"
+          echo "===== B. 5-min per endpoint"
           curl -s -H "apiKey: $K" \
             "$B/usage/$C?fromDate=$T&toDate=$T&returnData=aligned5minRead&returnAllTelemetry=true&includeEndPoints=true" \
-          | jq -c '.data.reads[] | {
-              type, endPointId, nickName,
-              intervals: (.intervalRead.intervalReads｜length),
-              lastThree: (.intervalRead.intervalReads | map(select(. != null)) | .[-3:]),
-              total: .intervalRead.aggregateValue }'
+            > /tmp/five.json
+          jq -c '.data.reads[] | {t:.type, id:.endPointId, nick:.nickName, n:(.intervalRead.intervalReads|length), last:(.intervalRead.intervalReads|map(select(.!=null))|.[-3:]), agg:.intervalRead.aggregateValue}' /tmp/five.json \
+            || head -c 1500 /tmp/five.json
+
+          echo ""
+          echo "===== C. 5-min aggregated by type"
+          curl -s -H "apiKey: $K" \
+            "$B/usage/$C?fromDate=$T&toDate=$T&returnData=aligned5minRead&aggregateByType=true&returnAllTelemetry=true" \
+            > /tmp/agg.json
+          jq -c '.data.reads[] | {t:.type, n:(.intervalRead.intervalReads|length), last:(.intervalRead.intervalReads|map(select(.!=null))|.[-3:]), agg:.intervalRead.aggregateValue}' /tmp/agg.json \
+            || head -c 1500 /tmp/agg.json
