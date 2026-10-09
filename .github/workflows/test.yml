@@ -9,11 +9,10 @@ jobs:
         run: |
           K="${{ secrets.VE_KEY }}"
           C="${{ secrets.VE_CONTEXT }}"
-          U="${{ secrets.VE_CUSTOMER }}"
           P="https://acapi.vecddevau1.village.energy/xv1"
-          B="$P/get/customer/energy/electricity/servicepoints/$C"
-
-          echo "context ${#C} chars, customerId ${#U} chars"
+          S="48204df7-ded8-4672-9722-7eb4b9f0399d"
+          B="$P/get/customer/energy/electricity/servicepoints/$S"
+          T=$(date -u +%Y-%m-%d)
 
           try () {
             echo ""
@@ -21,6 +20,6 @@ jobs:
             curl -s -w "\nSTATUS: %{http_code}\n" -H "apiKey: $K" "$1"
           }
 
-          try "$B"               "no filter"
-          try "$B?customerId=$U" "filtered by customerId"
-          try "$B/"              "trailing slash"
+          try "$B/usage/realtime/$C?aggregateByType=true&includeEndPoints=true" "REALTIME"
+          try "$B/der/$C" "DER"
+          try "$B/usage/$C?fromDate=$T&toDate=$T&returnData=dailyTotal&aggregateByType=true&returnAllTelemetry=true" "TODAY"
