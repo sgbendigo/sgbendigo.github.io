@@ -14,12 +14,15 @@ jobs:
           B="$P/get/customer/energy/electricity/servicepoints/$S"
           T=$(date -u +%Y-%m-%d)
 
-          try () {
-            echo ""
-            echo "===== $2"
-            curl -s -w "\nSTATUS: %{http_code}\n" -H "apiKey: $K" "$1"
-          }
+          echo "===== realtime, no params"
+          curl -s -w "\nSTATUS: %{http_code}\n" -H "apiKey: $K" "$B/usage/realtime/$C"
 
-          try "$B/usage/realtime/$C?aggregateByType=true&includeEndPoints=true" "REALTIME"
-          try "$B/der/$C" "DER"
-          try "$B/usage/$C?fromDate=$T&toDate=$T&returnData=dailyTotal&aggregateByType=true&returnAllTelemetry=true" "TODAY"
+          echo ""
+          echo "===== 5-min, per endpoint"
+          curl -s -H "apiKey: $K" \
+            "$B/usage/$C?fromDate=$T&toDate=$T&returnData=aligned5minRead&returnAllTelemetry=true&includeEndPoints=true" \
+          | jq -c '.data.reads[] | {
+              type, endPointId, nickName,
+              intervals: (.intervalRead.intervalReads｜length),
+              lastThree: (.intervalRead.intervalReads | map(select(. != null)) | .[-3:]),
+              total: .intervalRead.aggregateValue }'
