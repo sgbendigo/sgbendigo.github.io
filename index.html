@@ -310,7 +310,7 @@ body{
    "Loading..." which is your signal that it didn't run.
    =================================================================== */
 
-var DATA_URL    = './data.json';   /* change to your Worker address */
+var DATA_URL    = 'https://solar.sg-bendigo.workers.dev';
 var POLL_MS     = 30000;
 /* The timestamp the Worker sends is the time of the READING, not of the
    fetch. Inverters report on a lag of up to about half an hour, so data
@@ -447,7 +447,19 @@ function paintDevs(list){
 function paintStamp(iso, failed){
   var el = $('stamp');
   if (failed){ el.className = 'stamp err'; el.innerHTML = 'No connection &ndash; retrying'; return; }
-  var age  = (new Date()).getTime() - (new Date(iso)).getTime();
+  var age = (new Date()).getTime() - (new Date(iso)).getTime();
+
+  /* A timestamp in the future means a clock or timezone problem at the
+     far end. Left alone it makes `age` negative, which reads as "just
+     now" forever and quietly disables this whole warning -- so flag it
+     rather than letting it hide a fault. */
+  if (isNaN(age) || age < -120000) {
+    el.className = 'stamp err';
+    el.innerHTML = 'Clock mismatch &ndash; check the Worker';
+    return;
+  }
+  if (age < 0) age = 0;        // a couple of minutes' drift is nothing
+
   var mins = Math.round(age / 60000);
   el.className = 'stamp' + (age > STALE_AFTER ? ' stale' : '');
   el.innerHTML = mins < 1 ? 'Updated just now' : 'Updated ' + mins + ' min ago';
