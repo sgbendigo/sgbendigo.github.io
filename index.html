@@ -312,7 +312,11 @@ body{
 
 var DATA_URL    = './data.json';   /* change to your Worker address */
 var POLL_MS     = 30000;
-var STALE_AFTER = 600000;
+/* The timestamp the Worker sends is the time of the READING, not of the
+   fetch. Inverters report on a lag of up to about half an hour, so data
+   is normally 5-30 minutes old even when everything is healthy. Amber
+   past 45 minutes means something has actually stopped. */
+var STALE_AFTER = 45 * 60000;
 
 function $(id){ return document.getElementById(id); }
 
@@ -356,6 +360,17 @@ function paintStrip(m){
   setText('m-month',    n2(m.month));
   setText('m-year',     n2(m.year));
   setText('m-lifetime', n2(m.lifetime));
+
+  /* The API reports how many pages a long date range came back as, but
+     offers no way to request page 2. If lifetime was paginated it is an
+     undercount, so say so rather than showing a confident wrong number. */
+  var lt = $('m-lifetime');
+  if (lt) {
+    lt.style.color = m.lifetimeWarn ? '#f0883e' : '';
+    lt.title = m.lifetimeWarn
+      ? 'Incomplete — the API returned only part of the date range'
+      : '';
+  }
 }
 
 /* ---- flow diagram ---- */
